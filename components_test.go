@@ -123,7 +123,7 @@ func mockImage() []byte {
 	copy(firmware[:], testIFDBytes)
 	copy(firmware[0x10+flumapPosition:], testFlumap1)
 	copy(firmware[testIFDHeaderMapped.Flumap1.VTBA:], testVTBytes)
-	copy(firmware[testIFDHeaderMapped.Flmap1.FMBA:], testFMBytes)
+	copy(firmware[testIFDHeaderMapped.Flmap1.MasterBase:], testFMBytes)
 
 	return firmware
 }

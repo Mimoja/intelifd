@@ -46,29 +46,29 @@ const (
  */
 func (ifd *IFDHeader) GuessChipset() int {
 
-	if ifd.Flmap2.PSL>>8 == 0x00 {
-		if ifd.Flmap2.PSL&0xFF == 0 && ifd.Flmap1.ISL <= 2 {
+	if ifd.Flmap2.NumberOfProcessorStraps>>8 == 0x00 {
+		if ifd.Flmap2.NumberOfProcessorStraps&0xFF == 0 && ifd.Flmap1.NumberOfPCHStraps <= 2 {
 			return CHIPSET_ICH8
-		} else if ifd.Flmap1.ISL <= 2 {
+		} else if ifd.Flmap1.NumberOfPCHStraps <= 2 {
 			return CHIPSET_ICH9
-		} else if ifd.Flmap1.ISL <= 10 {
+		} else if ifd.Flmap1.NumberOfPCHStraps <= 10 {
 			return CHIPSET_ICH10
-		} else if ifd.Flmap1.ISL <= 16 {
+		} else if ifd.Flmap1.NumberOfPCHStraps <= 16 {
 			return CHIPSET_5_SERIES_IBEX_PEAK
 		}
 		log.Printf("Peculiar firmware descriptor, assuming Ibex Peak compatibility.\n")
 		return CHIPSET_5_SERIES_IBEX_PEAK
-	} else if ifd.Flmap2.PSL>>8 < 0x31 && (ifd.Flmap2.Raw&0xff) < 0x30 {
-		if ifd.Flmap2.PSL&0xFF == 0 && ifd.Flmap1.ISL <= 17 {
+	} else if ifd.Flmap2.NumberOfProcessorStraps>>8 < 0x31 && (ifd.Flmap2.Raw&0xff) < 0x30 {
+		if ifd.Flmap2.NumberOfProcessorStraps&0xFF == 0 && ifd.Flmap1.NumberOfPCHStraps <= 17 {
 			return CHIPSET_BAYTRAIL
-		} else if ifd.Flmap2.PSL&0xFF <= 1 && ifd.Flmap1.ISL <= 18 {
+		} else if ifd.Flmap2.NumberOfProcessorStraps&0xFF <= 1 && ifd.Flmap1.NumberOfPCHStraps <= 18 {
 			return CHIPSET_6_SERIES_COUGAR_POINT
-		} else if ifd.Flmap2.PSL&0xFF <= 1 && ifd.Flmap1.ISL <= 21 {
+		} else if ifd.Flmap2.NumberOfProcessorStraps&0xFF <= 1 && ifd.Flmap1.NumberOfPCHStraps <= 21 {
 			return CHIPSET_8_SERIES_LYNX_POINT
 		}
 		log.Printf("Peculiar firmware descriptor, assuming Wildcat Point compatibility.\n")
 		return CHIPSET_9_SERIES_WILDCAT_POINT
-	} else if ifd.Flmap1.NM == 6 {
+	} else if ifd.Flmap1.NumberOfMasters == 6 {
 		return CHIPSET_C620_SERIES_LEWISBURG
 	} else {
 		return CHIPSET_100_SERIES_SUNRISE_POINT

@@ -24,6 +24,28 @@ type (
 		Flmap3   FLMAP3
 		Flumap1  FLUMAP1
 	}
+	/*
+	// FLMAP0
+		ComponentBase      uint8
+		NumberOfFlashChips uint8
+		RegionBase         uint8
+		NumberOfRegions    uint8
+		// FLMAP1
+		MasterBase        uint8
+		NumberOfMasters   uint8
+		PCHStrapsBase     uint8
+		NumberOfPchStraps uint8
+		// FLMAP2
+		ProcStrapsBase          uint8
+		NumberOfProcStraps      uint8
+		IccTableBase            uint8
+		NumberOfIccTableEntries uint8
+		// FLMAP3
+		DmiTableBase            uint8
+		NumberOfDmiTableEntries uint8
+		Reserved0               uint8
+		Reserved1               uint8
+	 */
 	VSCCEntry struct {
 		Jid  uint32
 		Vscc uint32

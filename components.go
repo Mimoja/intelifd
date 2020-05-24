@@ -64,7 +64,7 @@ func parseFLMSTR(flmstr uint32, ifdVersion uint32) MasterSectionEntry {
 
 func parseFM(header *IFDHeader, bs []byte) (*FM, error){
 	fm := FM{}
-	reader := bytes.NewReader(bs[header.Flmap1.FMBA:])
+	reader := bytes.NewReader(bs[header.Flmap1.MasterBase:])
 	err := binary.Read(reader, binary.LittleEndian, &fm.Raw)
 
 	if err != nil {
