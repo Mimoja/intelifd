@@ -11,15 +11,56 @@ const flumapPosition = 4096 - 256 - 4
 type (
 	IFD struct {
 		Header IFDHeader
+		FM     *FM
+		VSCCs  []VSCCEntry
 	}
 	IFDHeader struct {
 		Offset   uint32
+		Version uint32
 		Flvalsig uint32
-		Flmap0   uint32
-		Flmap1   uint32
-		Flmap2   uint32
-		Flmap3   uint32
-		Flumap1  uint32
+		Flmap0   FLMAP0
+		Flmap1   FLMAP1
+		Flmap2   FLMAP2
+		Flmap3   FLMAP3
+		Flumap1  FLUMAP1
+	}
+	VSCCEntry struct {
+		Jid  uint32
+		Vscc uint32
+	}
+	FM struct {
+		Raw struct {
+			Flmstr1 uint32
+			Flmstr2 uint32
+			Flmstr3 uint32
+			Flmstr4 uint32
+			Flmstr5 uint32
+		}
+		Master MasterSection
+	}
+
+	MasterSection struct {
+		BIOS     MasterSectionEntry
+		ME       MasterSectionEntry
+		ETHERNET MasterSectionEntry
+		RESERVED MasterSectionEntry
+		EC       MasterSectionEntry
+	}
+
+	MasterSectionEntry struct {
+		FlashDescriptorReadAccess     bool
+		FlashDescriptorWriteAccess    bool
+		HostCPUBIOSRegionReadAccess   bool
+		HostCPUBIOSRegionWriteAccess  bool
+		IntelMERegionReadAccess       bool
+		IntelMERegionWriteAccess      bool
+		GbERegionReadAccess           bool
+		GbERegionWriteAccess          bool
+		PlatformDataRegionReadAccess  bool
+		PlatformDataRegionWriteAccess bool
+		ECRegionReadAccess            bool
+		ECRegionWriteAccess           bool
+		RequesterID uint16
 	}
 )
 
@@ -34,8 +75,21 @@ func FindFD(firmwareBytes []byte) (uint32, error) {
 	return 0, fmt.Errorf("could not find IFD Header 0x%X", IFD_HEADER)
 }
 
-func ParseIFD(firmwareBytes []byte) (*IFD, error) {
-	return nil, nil
+func ParseIFD(firmwareBytes []byte, offset uint32) (*IFD, error) {
+	ifd := IFD{}
+	header, e := ParseIFDHeader(firmwareBytes, offset)
+	if e != nil {
+		return nil, e
+	}
+	ifd.Header = *header.ParseMaps()
+	//FIXME guess Header Version correctly!
+	ifd.Header.Version = 1;
+
+	ifd.FM, _ = parseFM(header, firmwareBytes)
+
+	ifd.VSCCs, _ = parseVT(header, firmwareBytes)
+
+	return &ifd, nil
 }
 
 func ParseIFDHeader(firmwareBytes []byte, offset uint32) (*IFDHeader, error) {
@@ -43,13 +97,15 @@ func ParseIFDHeader(firmwareBytes []byte, offset uint32) (*IFDHeader, error) {
 		return nil, fmt.Errorf("image to small")
 	}
 
-	return &IFDHeader{
+	ifd := IFDHeader{
 		Offset:   offset,
-		Flvalsig: binary.LittleEndian.Uint32(firmwareBytes[offset: ]),
-		Flmap0:   binary.LittleEndian.Uint32(firmwareBytes[offset+4: ]),
-		Flmap1:   binary.LittleEndian.Uint32(firmwareBytes[offset+8: ]),
-		Flmap2:   binary.LittleEndian.Uint32(firmwareBytes[offset+12: ]),
-		Flmap3:   binary.LittleEndian.Uint32(firmwareBytes[offset+16: ]),
-		Flumap1:  binary.BigEndian.Uint32(firmwareBytes[offset+flumapPosition : offset+flumapPosition+4]),
-	}, nil
+		Flvalsig: binary.LittleEndian.Uint32(firmwareBytes[offset:]),
+	}
+	ifd.Flmap0.Raw = binary.LittleEndian.Uint32(firmwareBytes[offset+4:])
+	ifd.Flmap1.Raw = binary.LittleEndian.Uint32(firmwareBytes[offset+8:])
+	ifd.Flmap2.Raw = binary.LittleEndian.Uint32(firmwareBytes[offset+12:])
+	ifd.Flmap3.Raw = binary.LittleEndian.Uint32(firmwareBytes[offset+16:])
+	ifd.Flumap1.Raw = binary.BigEndian.Uint32(firmwareBytes[offset+flumapPosition : offset+flumapPosition+4])
+
+	return &ifd, nil
 }

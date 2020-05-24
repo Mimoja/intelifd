@@ -42,9 +42,9 @@ var (
 		},
 		Flumap1: FLUMAP1{
 			IFDEntry: IFDEntry{
-				Raw: 0x000006df,
+				Raw: 0x000002df,
 			},
-			VTL:  6,
+			VTL:  2,
 			VTBA: 0xdf0,
 		},
 	}
